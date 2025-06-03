@@ -1,6 +1,4 @@
-# kiotvietapiforecommercewebsite
-
-**Tích Hợp KiotViet API cho Website Bán Hàng – Đồng Bộ Sản Phẩm & Đơn Hàng Tự Động**
+# 🚀 Hướng Dẫn Tích Hợp KiotViet API - Đồng Bộ Đơn Hàng
 
 ## ✅ Mục Tiêu
 
@@ -35,9 +33,9 @@ Website Order → checkout.php → KiotVietAPI Class → KiotViet POS
 
 ```php
 class KiotVietAPI {
-    private $retailer = '**[YOUR_RETAILER_NAME]**';
-    private $client_id = '**[YOUR_CLIENT_ID]**';
-    private $client_secret = '**[YOUR_CLIENT_SECRET]**';
+    private $retailer = '**[TÊN KẾT NỐI CỦA BẠN]**';
+    private $client_id = '**[CLIENT_ID]**';
+    private $client_secret = '**[CLIENT_SECRET]**';
     private $base_url = 'https://public.kiotapi.com';
 
     // Các hàm chính:
@@ -53,9 +51,9 @@ class KiotVietAPI {
 ```php
 if ($order_id) {
     $kiotviet_config = [
-        'retailer' => '**[YOUR_RETAILER_NAME]**',
-        'client_id' => '**[YOUR_CLIENT_ID]**',
-        'client_secret' => '**[YOUR_CLIENT_SECRET]**',
+        'retailer' => '**[TÊN KẾT NỐI]**',
+        'client_id' => '**[CLIENT_ID]**',
+        'client_secret' => '**[CLIENT_SECRET]**',
         'base_url' => 'https://public.kiotapi.com'
     ];
 
@@ -79,26 +77,14 @@ SELECT * FROM db_dathang WHERE kiotviet_order_id IS NOT NULL ORDER BY id DESC;
 SELECT * FROM db_kiotviet_logs WHERE type = 'success';
 ```
 
-## 🧪 Test Trên Postman
+## 🧪 Test Case Thành Công
 
-- Gửi đơn hàng mới thông qua endpoint nội bộ (giả định):  
-  `POST https://yourwebsite.com/sources/ajax/checkout.php`
-
-- Body:
-```json
-{
-  "id_order": "12345",
-  "customer": {
-    "name": "Nguyễn Văn A",
-    "phone": "098xxxxxx",
-    "email": "example@gmail.com"
-  }
-}
-```
-
-- Kiểm tra phản hồi:
-  - `200 OK`
-  - `kiotviet_order_id` đã có trong database
+| Trường         | Giá Trị Test             | Kết Quả       |
+|----------------|--------------------------|---------------|
+| Website Order  | `DH-NU6V5`               | ✅ Thành công |
+| Order ID KV    | `14575144`               | ✅ Thành công |
+| Sản phẩm       | `KEO DÁN ĐA NĂNG`         | ✅ Auto Sync  |
+| Khách hàng     | `test.kiotviet@email.com`| ✅ Thành công |
 
 ## 📈 Theo Dõi Logs
 
@@ -121,14 +107,76 @@ Checklist:
 - Tích hợp vào quy trình checkout
 - Test kỹ với đơn hàng và sản phẩm thật
 
-## 📢 Lưu Ý Bảo Mật
+## 🔐 Thông Tin Bảo Mật
 
 > 🚫 **KHÔNG ĐƯỢC commit các thông tin như:**
 > - `client_id`
 > - `client_secret`
 > - `access_token`
 
-Hãy sử dụng biến môi trường `.env` hoặc include file cấu hình ngoài.
+Thay bằng biến môi trường `.env` hoặc định nghĩa cấu hình bên ngoài file mã nguồn.
+
+## 📢 Ghi Chú
+
+Tài liệu chính thức:  
+**[https://www.kiotviet.vn/huong-dan-su-dung-public-api-retail](https://www.kiotviet.vn/huong-dan-su-dung-public-api-retail)**
+
+
+### 🔍 Test đơn hàng KiotViet với Postman
+
+#### 1. **Lấy access token**
+- **URL:**  
+  `https://id.kiotviet.vn/connect/token`
+- **Method:** `POST`
+- **Header:**
+  ```
+  Content-Type: application/x-www-form-urlencoded
+  ```
+- **Body (x-www-form-urlencoded):**
+  ```
+  grant_type: password
+  client_id: **<YOUR_CLIENT_ID>**
+  client_secret: **<YOUR_CLIENT_SECRET>**
+  username: **<YOUR_USERNAME>**
+  password: **<YOUR_PASSWORD>**
+  ```
+- **Kết quả:** Trả về `access_token` dùng để gọi các API tiếp theo
+
+#### 2. **Tạo đơn hàng mới**
+- **URL:**  
+  `https://public.kiotapi.com/orders`
+- **Method:** `POST`
+- **Header:**
+  ```
+  Authorization: Bearer <access_token>
+  Retailer: <YOUR_RETAILER_NAME>
+  Content-Type: application/json
+  ```
+- **Body (JSON):**
+  ```json
+  {
+    "branchId": 12345,
+    "customerId": 67890,
+    "orderDetails": [
+      {
+        "productCode": "SP0001",
+        "quantity": 1,
+        "price": 100000
+      }
+    ],
+    "totalPayment": 100000
+  }
+  ```
+
+#### 3. **Xem danh sách đơn hàng**
+- **URL:**  
+  `https://public.kiotapi.com/orders?pageSize=10&pageIndex=0`
+- **Method:** `GET`
+- **Header:**
+  ```
+  Authorization: Bearer <access_token>
+  Retailer: <YOUR_RETAILER_NAME>
+  ```
 
 ## 👤 Tác Giả
 
